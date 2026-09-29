@@ -5,10 +5,10 @@ import org.zalava.InvocationContext;
 import org.zalava.ProviderCapabilities;
 import org.zalava.ProviderDescriptor;
 import org.zalava.ResourceDescriptor;
-import org.zalava.SeaOperationResult;
-import org.zalava.SeaProvider;
-import org.zalava.SeaToolDescriptor;
-import org.zalava.SeaToolInputSchemas;
+import org.zalava.ZalavaOperationResult;
+import org.zalava.ZalavaProvider;
+import org.zalava.ZalavaToolDescriptor;
+import org.zalava.ZalavaToolInputSchemas;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,22 +19,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-final class FileSystemSeaProvider implements SeaProvider {
+final class FileSystemSeaProvider implements ZalavaProvider {
 
-    private static final List<SeaToolDescriptor> TOOLS = List.of(
+    private static final List<ZalavaToolDescriptor> TOOLS = List.of(
             tool("listDirectory", "List entries in a directory under this provider root.", false,
-                    Map.of("path", SeaToolInputSchemas.string()), "path"),
+                    Map.of("path", ZalavaToolInputSchemas.string()), "path"),
             tool("readFile", "Read a UTF-8 text file under this provider root.", false,
-                    Map.of("path", SeaToolInputSchemas.string()), "path"),
+                    Map.of("path", ZalavaToolInputSchemas.string()), "path"),
             tool("writeFile", "Write a UTF-8 text file under this provider root.", true,
-                    Map.of("path", SeaToolInputSchemas.string(), "content", SeaToolInputSchemas.string()), "path"),
+                    Map.of("path", ZalavaToolInputSchemas.string(), "content", ZalavaToolInputSchemas.string()), "path"),
             tool("Read", "Read a file under this provider root with optional line bounds.", false,
-                    Map.of("filePath", SeaToolInputSchemas.string(), "offset", SeaToolInputSchemas.integer(), "limit", SeaToolInputSchemas.integer()), "filePath"),
+                    Map.of("filePath", ZalavaToolInputSchemas.string(), "offset", ZalavaToolInputSchemas.integer(), "limit", ZalavaToolInputSchemas.integer()), "filePath"),
             tool("Write", "Write a UTF-8 file under this provider root.", true,
-                    Map.of("filePath", SeaToolInputSchemas.string(), "content", SeaToolInputSchemas.string()), "filePath"),
+                    Map.of("filePath", ZalavaToolInputSchemas.string(), "content", ZalavaToolInputSchemas.string()), "filePath"),
             tool("Edit", "Replace text in a file under this provider root.", true,
-                    Map.of("filePath", SeaToolInputSchemas.string(), "old_string", SeaToolInputSchemas.string(),
-                            "new_string", SeaToolInputSchemas.string(), "replace_all", SeaToolInputSchemas.bool()),
+                    Map.of("filePath", ZalavaToolInputSchemas.string(), "old_string", ZalavaToolInputSchemas.string(),
+                            "new_string", ZalavaToolInputSchemas.string(), "replace_all", ZalavaToolInputSchemas.bool()),
                     "filePath", "old_string", "new_string")
     );
 
@@ -74,12 +74,12 @@ final class FileSystemSeaProvider implements SeaProvider {
     }
 
     @Override
-    public List<SeaToolDescriptor> listTools() {
+    public List<ZalavaToolDescriptor> listTools() {
         return root.writable() ? TOOLS : TOOLS.stream().filter(tool -> !tool.sideEffecting()).toList();
     }
 
     @Override
-    public SeaOperationResult callTool(String toolName, JsonNode arguments, InvocationContext context) {
+    public ZalavaOperationResult callTool(String toolName, JsonNode arguments, InvocationContext context) {
         return switch (toolName) {
             case "listDirectory" -> listDirectory(required(arguments, "path"));
             case "readFile" -> readFile(required(arguments, "path"));
@@ -97,14 +97,14 @@ final class FileSystemSeaProvider implements SeaProvider {
     }
 
     @Override
-    public SeaOperationResult readResource(String uri, InvocationContext context) {
+    public ZalavaOperationResult readResource(String uri, InvocationContext context) {
         if (uri == null || !uri.startsWith(resourcePrefix())) {
             throw new IllegalArgumentException("Unsupported filesystem resource uri: " + uri);
         }
         return readFile(uri.substring(resourcePrefix().length()));
     }
 
-    private SeaOperationResult listDirectory(String path) {
+    private ZalavaOperationResult listDirectory(String path) {
         Path directory = existingPath(path);
         if (!Files.isDirectory(directory)) {
             throw new IllegalArgumentException("Path is not a directory: " + path);
@@ -116,7 +116,7 @@ final class FileSystemSeaProvider implements SeaProvider {
         }
     }
 
-    private SeaOperationResult readFile(String path) {
+    private ZalavaOperationResult readFile(String path) {
         Path file = existingPath(path);
         if (!Files.isRegularFile(file)) {
             throw new IllegalArgumentException("Path is not a regular file: " + path);
@@ -128,7 +128,7 @@ final class FileSystemSeaProvider implements SeaProvider {
         }
     }
 
-    private SeaOperationResult writeFile(String path, String content, InvocationContext context) {
+    private ZalavaOperationResult writeFile(String path, String content, InvocationContext context) {
         requireWritableAndConfirmed(path, context, "write");
         Path file = writablePath(path);
         try {
@@ -139,7 +139,7 @@ final class FileSystemSeaProvider implements SeaProvider {
         }
     }
 
-    private SeaOperationResult read(JsonNode arguments) {
+    private ZalavaOperationResult read(JsonNode arguments) {
         String path = requiredFilePath(arguments);
         Path file = existingPath(path);
         if (!Files.isRegularFile(file)) {
@@ -162,7 +162,7 @@ final class FileSystemSeaProvider implements SeaProvider {
         }
     }
 
-    private SeaOperationResult write(JsonNode arguments, InvocationContext context) {
+    private ZalavaOperationResult write(JsonNode arguments, InvocationContext context) {
         String path = requiredFilePath(arguments);
         requireWritableAndConfirmed(path, context, "write");
         Path file = writablePath(path);
@@ -176,7 +176,7 @@ final class FileSystemSeaProvider implements SeaProvider {
         }
     }
 
-    private SeaOperationResult edit(JsonNode arguments, InvocationContext context) {
+    private ZalavaOperationResult edit(JsonNode arguments, InvocationContext context) {
         String path = requiredFilePath(arguments);
         requireWritableAndConfirmed(path, context, "edit");
         String oldValue = required(arguments, "old_string");
@@ -263,8 +263,8 @@ final class FileSystemSeaProvider implements SeaProvider {
         }
     }
 
-    private SeaOperationResult result(Map<String, Object> content) {
-        return new SeaOperationResult(true, content, Map.of("providerId", descriptor.providerId(), "root", rootPath.toString(), "writable", root.writable()));
+    private ZalavaOperationResult result(Map<String, Object> content) {
+        return new ZalavaOperationResult(true, content, Map.of("providerId", descriptor.providerId(), "root", rootPath.toString(), "writable", root.writable()));
     }
 
     private String resourcePrefix() {
@@ -299,7 +299,7 @@ final class FileSystemSeaProvider implements SeaProvider {
         return line.length() > 2_000 ? line.substring(0, 2_000) + " (line truncated)" : line;
     }
 
-    private static SeaToolDescriptor tool(String name, String description, boolean sideEffecting, Map<String, Object> properties, String... required) {
-        return new SeaToolDescriptor(name, description, sideEffecting, List.of(), SeaToolInputSchemas.object(properties, required));
+    private static ZalavaToolDescriptor tool(String name, String description, boolean sideEffecting, Map<String, Object> properties, String... required) {
+        return new ZalavaToolDescriptor(name, description, sideEffecting, List.of(), ZalavaToolInputSchemas.object(properties, required));
     }
 }

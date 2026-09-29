@@ -1,14 +1,14 @@
 schemaVersion: 1
 modules:
   - moduleId: zalava-module-filesystem
-    version: 0.1.0-alpha.1
+    version: 0.1.0-alpha.2
     displayName: Scoped Filesystem
     description: SEA filesystem providers constrained to configured roots.
     supportUrl: https://github.com/Zalava/zalava-module-filesystem
     artifact:
       groupId: org.zalava.modules
       artifactId: zalava-module-filesystem
-      version: 0.1.0-alpha.1
+      version: 0.1.0-alpha.2
     source:
       repository: https://github.com/Zalava/zalava-module-filesystem.git
       license: Apache-2.0

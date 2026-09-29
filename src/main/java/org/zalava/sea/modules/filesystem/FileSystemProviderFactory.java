@@ -3,7 +3,7 @@ package org.zalava.modules.filesystem;
 import org.zalava.ProviderFactory;
 import org.zalava.ProviderFactoryContext;
 import org.zalava.ProviderFactoryDescriptor;
-import org.zalava.SeaProvider;
+import org.zalava.ZalavaProvider;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -28,7 +28,7 @@ public final class FileSystemProviderFactory implements ProviderFactory {
     }
 
     @Override
-    public List<SeaProvider> createProviders(ProviderFactoryContext context) {
+    public List<ZalavaProvider> createProviders(ProviderFactoryContext context) {
         Object configuredRoots = context.configuration().get("roots");
         if (configuredRoots == null) {
             return List.of();
@@ -36,7 +36,7 @@ public final class FileSystemProviderFactory implements ProviderFactory {
         if (!(configuredRoots instanceof List<?> roots)) {
             throw new IllegalArgumentException("Filesystem factory roots must be a list");
         }
-        return roots.stream().map(this::root).map(FileSystemSeaProvider::new).map(SeaProvider.class::cast).toList();
+        return roots.stream().map(this::root).map(FileSystemSeaProvider::new).map(ZalavaProvider.class::cast).toList();
     }
 
     private FileSystemRoot root(Object value) {
