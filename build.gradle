@@ -34,7 +34,7 @@ if (releaseTag != null && metadataVersion != releaseTag.substring(1)) {
 }
 version = releaseTag != null ? releaseTag.substring(1) : metadataVersion
 
-def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.1')
+def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.2')
 def moduleApiRepositoryUrl = providers.gradleProperty('moduleApiRepositoryUrl')
         .orElse('https://zalava.github.io/zalava-maven/')
 def githubPackagesActor = providers.gradleProperty('gpr.user')

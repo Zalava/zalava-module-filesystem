@@ -3,7 +3,7 @@ package org.zalava.modules.filesystem;
 import org.zalava.ModuleDescriptor;
 import org.zalava.ModuleConfigurationDescriptor;
 import org.zalava.ProviderFactory;
-import org.zalava.SeaModule;
+import org.zalava.ZalavaModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /** Service-loaded SEA module for provider-scoped filesystem access. */
-public final class FileSystemSeaModule implements SeaModule {
+public final class FileSystemSeaModule implements ZalavaModule {
 
     public static final String MODULE_ID = "zalava-module-filesystem";
 

@@ -8,9 +8,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import org.zalava.InvocationContext;
-import org.zalava.SeaOperationResult;
-import org.zalava.SeaProvider;
-import org.zalava.SeaToolDescriptor;
+import org.zalava.ZalavaOperationResult;
+import org.zalava.ZalavaProvider;
+import org.zalava.ZalavaToolDescriptor;
 import org.zalava.testing.ConfigFixture;
 import org.zalava.testing.ModuleContractKit;
 import org.zalava.testing.ProviderFixture;
@@ -79,10 +79,10 @@ class FileSystemSeaModuleTest {
     @Test
     void createsTheConfiguredProviderAndDeclaresItsTools() {
         try (ProviderFixture providers = kit.providers(configuration(workspace, true))) {
-            SeaProvider provider = providers.requireProvider(PROVIDER_ID);
+            ZalavaProvider provider = providers.requireProvider(PROVIDER_ID);
 
             assertThat(provider.descriptor().moduleId()).isEqualTo(MODULE_ID);
-            assertThat(provider.listTools().stream().map(SeaToolDescriptor::name))
+            assertThat(provider.listTools().stream().map(ZalavaToolDescriptor::name))
                     .containsExactly("listDirectory", "readFile", "writeFile", "Read", "Write", "Edit");
         }
     }
@@ -90,7 +90,7 @@ class FileSystemSeaModuleTest {
     @Test
     void writesReadsListsAndReadsResourcesInsideTheRoot() throws Exception {
         try (ProviderFixture providers = kit.providers(configuration(workspace, true))) {
-            SeaOperationResult write = providers.invoke(PROVIDER_ID, "writeFile",
+            ZalavaOperationResult write = providers.invoke(PROVIDER_ID, "writeFile",
                     arguments().put("path", "notes/hello.txt").put("content", "hello sea"), confirmed());
             assertThat(write.success()).isTrue();
 
@@ -99,7 +99,7 @@ class FileSystemSeaModuleTest {
             assertThat(content(providers.invoke(PROVIDER_ID, "listDirectory",
                     arguments().put("path", "notes"))).get("entries")).isEqualTo(List.of("hello.txt"));
 
-            SeaProvider provider = providers.requireProvider(PROVIDER_ID);
+            ZalavaProvider provider = providers.requireProvider(PROVIDER_ID);
             assertThat(content(provider.readResource("filesystem://workspace/notes/hello.txt", InvocationContext.system())).get("content"))
                     .isEqualTo("hello sea");
         }
@@ -142,9 +142,9 @@ class FileSystemSeaModuleTest {
     @Test
     void deniesReadOnlyAndUnconfirmedMutations() throws Exception {
         try (ProviderFixture providers = kit.providers(configuration(workspace, false))) {
-            assertThat(providers.tools(PROVIDER_ID).stream().map(SeaToolDescriptor::name))
+            assertThat(providers.tools(PROVIDER_ID).stream().map(ZalavaToolDescriptor::name))
                     .containsExactly("listDirectory", "readFile", "Read");
-            SeaProvider readOnly = providers.requireProvider(PROVIDER_ID);
+            ZalavaProvider readOnly = providers.requireProvider(PROVIDER_ID);
             assertThatThrownBy(() -> readOnly.callTool("writeFile",
                     arguments().put("path", "no.txt").put("content", "no"), confirmed()))
                     .isInstanceOf(UnsupportedOperationException.class)
@@ -178,7 +178,7 @@ class FileSystemSeaModuleTest {
     }
 
     @SuppressWarnings("unchecked")
-    private static Map<String, Object> content(SeaOperationResult result) {
+    private static Map<String, Object> content(ZalavaOperationResult result) {
         return (Map<String, Object>) result.content();
     }
 }
