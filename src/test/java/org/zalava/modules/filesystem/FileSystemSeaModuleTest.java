@@ -11,13 +11,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.zalava.InvocationContext;
-import org.zalava.ZalavaOperationResult;
-import org.zalava.ZalavaProvider;
-import org.zalava.ZalavaToolDescriptor;
-import org.zalava.testing.ConfigFixture;
-import org.zalava.testing.ModuleContractKit;
-import org.zalava.testing.ProviderFixture;
+import org.zalava.api.InvocationContext;
+import org.zalava.api.ZalavaOperationResult;
+import org.zalava.api.ZalavaProvider;
+import org.zalava.api.ZalavaToolDescriptor;
+import org.zalava.api.testing.ConfigFixture;
+import org.zalava.api.testing.ModuleContractKit;
+import org.zalava.api.testing.ProviderFixture;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -95,20 +95,36 @@ class FileSystemSeaModuleTest {
           providers.invoke(
               PROVIDER_ID,
               "writeFile",
-              arguments().put("path", "notes/hello.txt").put("content", "hello sea"),
+              new tools.jackson.databind.json.JsonMapper()
+                  .convertValue(
+                      arguments().put("path", "notes/hello.txt").put("content", "hello sea"),
+                      new tools.jackson.core.type.TypeReference<
+                          java.util.Map<String, Object>>() {}),
               confirmed());
       assertThat(write.success()).isTrue();
 
       assertThat(
               content(
                       providers.invoke(
-                          PROVIDER_ID, "readFile", arguments().put("path", "notes/hello.txt")))
+                          PROVIDER_ID,
+                          "readFile",
+                          new tools.jackson.databind.json.JsonMapper()
+                              .convertValue(
+                                  arguments().put("path", "notes/hello.txt"),
+                                  new tools.jackson.core.type.TypeReference<
+                                      java.util.Map<String, Object>>() {})))
                   .get("content"))
           .isEqualTo("hello sea");
       assertThat(
               content(
                       providers.invoke(
-                          PROVIDER_ID, "listDirectory", arguments().put("path", "notes")))
+                          PROVIDER_ID,
+                          "listDirectory",
+                          new tools.jackson.databind.json.JsonMapper()
+                              .convertValue(
+                                  arguments().put("path", "notes"),
+                                  new tools.jackson.core.type.TypeReference<
+                                      java.util.Map<String, Object>>() {})))
                   .get("entries"))
           .isEqualTo(List.of("hello.txt"));
 
@@ -128,26 +144,38 @@ class FileSystemSeaModuleTest {
       providers.invoke(
           PROVIDER_ID,
           "Write",
-          arguments().put("file_path", "notes/community.txt").put("content", "alpha\nbeta\nalpha"),
+          new tools.jackson.databind.json.JsonMapper()
+              .convertValue(
+                  arguments()
+                      .put("file_path", "notes/community.txt")
+                      .put("content", "alpha\nbeta\nalpha"),
+                  new tools.jackson.core.type.TypeReference<java.util.Map<String, Object>>() {}),
           confirmed());
       Object read =
           content(
                   providers.invoke(
                       PROVIDER_ID,
                       "Read",
-                      arguments()
-                          .put("file_path", "notes/community.txt")
-                          .put("offset", 2)
-                          .put("limit", 1)))
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments()
+                                  .put("file_path", "notes/community.txt")
+                                  .put("offset", 2)
+                                  .put("limit", 1),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {})))
               .get("result");
       providers.invoke(
           PROVIDER_ID,
           "Edit",
-          arguments()
-              .put("file_path", "notes/community.txt")
-              .put("old_string", "alpha")
-              .put("new_string", "changed")
-              .put("replace_all", true),
+          new tools.jackson.databind.json.JsonMapper()
+              .convertValue(
+                  arguments()
+                      .put("file_path", "notes/community.txt")
+                      .put("old_string", "alpha")
+                      .put("new_string", "changed")
+                      .put("replace_all", true),
+                  new tools.jackson.core.type.TypeReference<java.util.Map<String, Object>>() {}),
           confirmed());
 
       assertThat(read.toString()).contains("Showing lines 2-2 of 3");
@@ -166,13 +194,25 @@ class FileSystemSeaModuleTest {
       assertThatThrownBy(
               () ->
                   providers.invoke(
-                      PROVIDER_ID, "readFile", arguments().put("path", "../outside.txt")))
+                      PROVIDER_ID,
+                      "readFile",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments().put("path", "../outside.txt"),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {})))
           .isInstanceOf(IllegalArgumentException.class)
           .hasMessageContaining("escapes provider root");
       assertThatThrownBy(
               () ->
                   providers.invoke(
-                      PROVIDER_ID, "readFile", arguments().put("path", "outside-link")))
+                      PROVIDER_ID,
+                      "readFile",
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments().put("path", "outside-link"),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {})))
           .isInstanceOf(IllegalArgumentException.class)
           .hasMessageContaining("escapes provider root");
     }
@@ -188,7 +228,11 @@ class FileSystemSeaModuleTest {
               () ->
                   readOnly.callTool(
                       "writeFile",
-                      arguments().put("path", "no.txt").put("content", "no"),
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments().put("path", "no.txt").put("content", "no"),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}),
                       confirmed()))
           .isInstanceOf(UnsupportedOperationException.class)
           .hasMessageContaining("read-only");
@@ -200,7 +244,11 @@ class FileSystemSeaModuleTest {
                   providers.invoke(
                       PROVIDER_ID,
                       "Write",
-                      arguments().put("file_path", "no.txt").put("content", "no")))
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments().put("file_path", "no.txt").put("content", "no"),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {})))
           .isInstanceOf(IllegalArgumentException.class)
           .hasMessageContaining("requires confirmation");
       assertThat(Files.exists(workspace.resolve("no.txt"))).isFalse();
