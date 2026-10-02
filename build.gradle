@@ -36,7 +36,7 @@ if (releaseTag != null && metadataVersion != releaseTag.substring(1)) {
 }
 version = releaseTag != null ? releaseTag.substring(1) : metadataVersion
 
-def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.2')
+def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.6')
 def moduleApiRepositoryUrl = providers.gradleProperty('moduleApiRepositoryUrl')
         .orElse('https://zalava.github.io/zalava-maven/')
 def githubPackagesActor = providers.gradleProperty('gpr.user')
@@ -60,6 +60,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'tools.jackson.core:jackson-databind:3.1.4'
     compileOnly "org.zalava:module-api:${moduleApiVersion.get()}"
     testImplementation "org.zalava:module-api:${moduleApiVersion.get()}"
     testImplementation "org.zalava:module-api-test:${moduleApiVersion.get()}"

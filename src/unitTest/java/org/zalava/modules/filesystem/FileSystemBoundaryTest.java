@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.zalava.InvocationContext;
-import org.zalava.ProviderFactoryContext;
+import org.zalava.api.InvocationContext;
+import org.zalava.api.ProviderFactoryContext;
 import tools.jackson.databind.json.JsonMapper;
 
 class FileSystemBoundaryTest {
@@ -46,7 +46,16 @@ class FileSystemBoundaryTest {
   void validatesOperationPathsRangesAndConfirmation() throws Exception {
     var provider = provider(true);
     assertThat(provider.capabilities().supportsResources()).isTrue();
-    assertThatThrownBy(() -> provider.callTool("unknown", json.createObjectNode(), confirmed))
+    assertThatThrownBy(
+            () ->
+                provider.callTool(
+                    "unknown",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            json.createObjectNode(),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .hasMessageContaining("Unknown filesystem tool");
     for (String uri : new String[] {null, "https://outside/file"}) {
       assertThatThrownBy(() -> provider.readResource(uri, confirmed))
@@ -54,7 +63,16 @@ class FileSystemBoundaryTest {
     }
     Files.writeString(directory.resolve("file"), "a\nb\n" + "x".repeat(2001));
     Files.createDirectory(directory.resolve("folder"));
-    assertThatThrownBy(() -> provider.callTool("listDirectory", args("path", "file"), confirmed))
+    assertThatThrownBy(
+            () ->
+                provider.callTool(
+                    "listDirectory",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("path", "file"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .hasMessageContaining("directory");
     for (String tool : List.of("readFile", "Read", "Edit")) {
       var arguments =
@@ -62,51 +80,147 @@ class FileSystemBoundaryTest {
               .put("filePath", "folder")
               .put("old_string", "a")
               .put("new_string", "b");
-      assertThatThrownBy(() -> provider.callTool(tool, arguments, confirmed))
+      assertThatThrownBy(
+              () ->
+                  provider.callTool(
+                      tool,
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments,
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}),
+                      confirmed))
           .hasMessageContaining("regular file");
     }
-    assertThatThrownBy(() -> provider.callTool("readFile", args("path", "missing"), confirmed))
+    assertThatThrownBy(
+            () ->
+                provider.callTool(
+                    "readFile",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("path", "missing"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .hasMessageContaining("does not exist");
     assertThatThrownBy(
-            () -> provider.callTool("readFile", args("path", directory.toString()), confirmed))
+            () ->
+                provider.callTool(
+                    "readFile",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("path", directory.toString()),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .hasMessageContaining("relative");
-    assertThatThrownBy(() -> provider.callTool("readFile", args("path", "\u0000"), confirmed))
+    assertThatThrownBy(
+            () ->
+                provider.callTool(
+                    "readFile",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("path", "\u0000"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .hasMessageContaining("Invalid");
     assertThatThrownBy(
-            () -> provider.callTool("Read", args("filePath", "file").put("offset", 0), confirmed))
+            () ->
+                provider.callTool(
+                    "Read",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "file").put("offset", 0),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .hasMessageContaining("positive");
     assertThat(
             provider
-                .callTool("Read", args("file_path", "file").put("offset", 100), confirmed)
+                .callTool(
+                    "Read",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("file_path", "file").put("offset", 100),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed)
                 .content()
                 .toString())
         .contains("File has no lines in the requested range");
     assertThat(
             provider
-                .callTool("Read", args("filePath", "file").putNull("limit"), confirmed)
+                .callTool(
+                    "Read",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "file").putNull("limit"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed)
                 .content()
                 .toString())
         .contains("line truncated");
-    assertThatThrownBy(() -> provider.callTool("Write", args("filePath", "file"), null))
+    assertThatThrownBy(
+            () ->
+                provider.callTool(
+                    "Write",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "file"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    null))
         .hasMessageContaining("confirmation");
-    assertThatThrownBy(() -> provider(false).callTool("Write", args("filePath", "file"), confirmed))
+    assertThatThrownBy(
+            () ->
+                provider(false)
+                    .callTool(
+                        "Write",
+                        new tools.jackson.databind.json.JsonMapper()
+                            .convertValue(
+                                args("filePath", "file"),
+                                new tools.jackson.core.type.TypeReference<
+                                    java.util.Map<String, Object>>() {}),
+                        confirmed))
         .isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(
             () ->
                 provider.callTool(
                     "Edit",
-                    args("filePath", "file").put("old_string", "missing").put("new_string", "b"),
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "file")
+                                .put("old_string", "missing")
+                                .put("new_string", "b"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
                     confirmed))
         .hasMessageContaining("not found");
     assertThat(
             provider
-                .callTool("Write", args("filePath", "new").put("content", "created"), confirmed)
+                .callTool(
+                    "Write",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "new").put("content", "created"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed)
                 .content()
                 .toString())
         .contains("created");
     assertThat(
             provider
-                .callTool("Write", args("filePath", "new").put("content", "replaced"), confirmed)
+                .callTool(
+                    "Write",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "new").put("content", "replaced"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed)
                 .content()
                 .toString())
         .contains("overwrote");
@@ -123,7 +237,16 @@ class FileSystemBoundaryTest {
               .put("filePath", "invalid-utf8")
               .put("old_string", "x")
               .put("new_string", "y");
-      assertThatThrownBy(() -> provider.callTool(tool, arguments, confirmed))
+      assertThatThrownBy(
+              () ->
+                  provider.callTool(
+                      tool,
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              arguments,
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}),
+                      confirmed))
           .isInstanceOf(IllegalStateException.class);
     }
     Files.createDirectory(directory.resolve("folder"));
@@ -131,11 +254,25 @@ class FileSystemBoundaryTest {
       assertThatThrownBy(
               () ->
                   provider.callTool(
-                      tool, args("path", "folder").put("filePath", "folder"), confirmed))
+                      tool,
+                      new tools.jackson.databind.json.JsonMapper()
+                          .convertValue(
+                              args("path", "folder").put("filePath", "folder"),
+                              new tools.jackson.core.type.TypeReference<
+                                  java.util.Map<String, Object>>() {}),
+                      confirmed))
           .isInstanceOf(IllegalStateException.class);
     }
     assertThatThrownBy(
-            () -> provider.callTool("Write", args("filePath", "invalid-utf8/child"), confirmed))
+            () ->
+                provider.callTool(
+                    "Write",
+                    new tools.jackson.databind.json.JsonMapper()
+                        .convertValue(
+                            args("filePath", "invalid-utf8/child"),
+                            new tools.jackson.core.type.TypeReference<
+                                java.util.Map<String, Object>>() {}),
+                    confirmed))
         .isInstanceOf(IllegalStateException.class);
     Path blocker = directory.resolve("blocker");
     Files.writeString(blocker, "fixture");
