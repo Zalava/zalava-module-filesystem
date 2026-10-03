@@ -36,7 +36,7 @@ if (releaseTag != null && metadataVersion != releaseTag.substring(1)) {
 }
 version = releaseTag != null ? releaseTag.substring(1) : metadataVersion
 
-def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.6')
+def moduleApiVersion = providers.gradleProperty('moduleApiVersion').orElse('0.1.0-alpha.7')
 def moduleApiRepositoryUrl = providers.gradleProperty('moduleApiRepositoryUrl')
         .orElse('https://zalava.github.io/zalava-maven/')
 def githubPackagesActor = providers.gradleProperty('gpr.user')
@@ -91,7 +91,7 @@ tasks.named('test') {
 
 tasks.named('jar') {
     manifest {
-        attributes('SEA-Module-Id': 'zalava-module-filesystem', 'SEA-Module-Version': project.version)
+        attributes('Zalava-Module-Id': 'zalava-module-filesystem', 'Zalava-Module-Version': project.version)
     }
     from(moduleMetadataFile)
 }
@@ -104,7 +104,7 @@ processResources {
 }
 
 // Validates module-metadata.yaml and embeds it at the root of the installable
-// JAR so SEA's local artifact upload can read it without network access.
+// JAR so Zalava's local artifact upload can read it without network access.
 tasks.register('validateModuleMetadata') {
     inputs.file(moduleMetadataFile)
     doLast {
@@ -123,8 +123,8 @@ tasks.register('validateModuleMetadata') {
         if (module.version != project.version.toString()) {
             throw new GradleException("module-metadata.yaml version ${module.version} must match build version ${project.version}")
         }
-        if (!(module.compatibility instanceof Map) || !(module.compatibility.seaRuntime instanceof String)) {
-            throw new GradleException('module-metadata.yaml compatibility.seaRuntime is required')
+        if (!(module.compatibility instanceof Map) || !(module.compatibility.zalavaRuntime instanceof String)) {
+            throw new GradleException('module-metadata.yaml compatibility.zalavaRuntime is required')
         }
         if (!(module.configurationSchema instanceof Map)) {
             throw new GradleException('module-metadata.yaml configurationSchema is required')

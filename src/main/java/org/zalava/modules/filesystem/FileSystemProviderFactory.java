@@ -16,7 +16,7 @@ public final class FileSystemProviderFactory implements ProviderFactory {
   private static final ProviderFactoryDescriptor DESCRIPTOR =
       new ProviderFactoryDescriptor(
           FACTORY_ID,
-          FileSystemSeaModule.MODULE_ID,
+          FileSystemZalavaModule.MODULE_ID,
           "filesystem-root",
           "Scoped Filesystem Root Factory",
           "Creates filesystem providers constrained to declared roots.");
@@ -37,7 +37,7 @@ public final class FileSystemProviderFactory implements ProviderFactory {
     }
     return roots.stream()
         .map(this::root)
-        .map(FileSystemSeaProvider::new)
+        .map(FileSystemZalavaProvider::new)
         .map(ZalavaProvider.class::cast)
         .toList();
   }

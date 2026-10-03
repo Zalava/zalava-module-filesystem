@@ -24,9 +24,9 @@ import tools.jackson.databind.node.ObjectNode;
 /**
  * Exercises the real built module JAR at the stable {@code module-api} boundary through the
  * released contract kit. Host-owned resolution, validation, permissions and persistence stay
- * covered by SEA.
+ * covered by Zalava.
  */
-class FileSystemSeaModuleTest {
+class FileSystemZalavaModuleTest {
 
   private static final String MODULE_ID = "zalava-module-filesystem";
   private static final String FACTORY_ID = "filesystem-root";
@@ -187,7 +187,7 @@ class FileSystemSeaModuleTest {
   @Test
   void rejectsTraversalAndSymlinkEscapes() throws Exception {
     try (ProviderFixture providers = kit.providers(configuration(workspace, true))) {
-      Path outside = Files.createTempFile("sea-outside", ".txt");
+      Path outside = Files.createTempFile("zalava-outside", ".txt");
       Files.writeString(outside, "outside");
       Files.createSymbolicLink(workspace.resolve("outside-link"), outside);
 
