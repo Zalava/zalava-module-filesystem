@@ -278,12 +278,14 @@ class FileSystemBoundaryTest {
     Files.writeString(blocker, "fixture");
     assertThatThrownBy(
             () ->
-                new FileSystemSeaProvider(new FileSystemRoot("invalid", "Invalid", blocker, true)))
+                new FileSystemZalavaProvider(
+                    new FileSystemRoot("invalid", "Invalid", blocker, true)))
         .hasMessageContaining("Unable to create filesystem root");
   }
 
-  private FileSystemSeaProvider provider(boolean writable) {
-    return new FileSystemSeaProvider(new FileSystemRoot("fixture", "Fixture", directory, writable));
+  private FileSystemZalavaProvider provider(boolean writable) {
+    return new FileSystemZalavaProvider(
+        new FileSystemRoot("fixture", "Fixture", directory, writable));
   }
 
   private tools.jackson.databind.node.ObjectNode args(String key, String value) {

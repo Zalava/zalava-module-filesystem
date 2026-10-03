@@ -10,8 +10,8 @@ import org.zalava.api.ModuleDescriptor;
 import org.zalava.api.ProviderFactory;
 import org.zalava.api.ZalavaModule;
 
-/** Service-loaded SEA module for provider-scoped filesystem access. */
-public final class FileSystemSeaModule implements ZalavaModule {
+/** Service-loaded Zalava module for provider-scoped filesystem access. */
+public final class FileSystemZalavaModule implements ZalavaModule {
 
   public static final String MODULE_ID = "zalava-module-filesystem";
 
@@ -21,7 +21,7 @@ public final class FileSystemSeaModule implements ZalavaModule {
         MODULE_ID,
         version(),
         "Scoped Filesystem",
-        "SEA filesystem providers constrained to configured roots.");
+        "Zalava filesystem providers constrained to configured roots.");
   }
 
   @Override
@@ -73,7 +73,8 @@ public final class FileSystemSeaModule implements ZalavaModule {
 
   static String version() {
     Properties properties = new Properties();
-    try (InputStream input = FileSystemSeaModule.class.getResourceAsStream("/module.properties")) {
+    try (InputStream input =
+        FileSystemZalavaModule.class.getResourceAsStream("/module.properties")) {
       if (input == null) {
         throw new IllegalStateException("Missing module version metadata");
       }

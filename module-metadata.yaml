@@ -3,7 +3,7 @@ modules:
   - moduleId: zalava-module-filesystem
     version: 0.1.0-alpha.3
     displayName: Scoped Filesystem
-    description: SEA filesystem providers constrained to configured roots.
+    description: Zalava filesystem providers constrained to configured roots.
     supportUrl: https://github.com/Zalava/zalava-module-filesystem
     artifact:
       groupId: org.zalava.modules
@@ -16,7 +16,7 @@ modules:
       command: ["./gradlew", "build"]
       verificationCommand: ["./gradlew", "test"]
     compatibility:
-      seaRuntime: ">=1.0.0 <2.0.0"
+      zalavaRuntime: ">=1.0.0 <2.0.0"
     configurationSchema:
       type: object
       additionalProperties: false

@@ -18,7 +18,7 @@ import org.zalava.api.ZalavaToolDescriptor;
 import org.zalava.api.ZalavaToolInputSchemas;
 import tools.jackson.databind.JsonNode;
 
-final class FileSystemSeaProvider implements ZalavaProvider {
+final class FileSystemZalavaProvider implements ZalavaProvider {
 
   private static final List<ZalavaToolDescriptor> TOOLS =
       List.of(
@@ -87,7 +87,7 @@ final class FileSystemSeaProvider implements ZalavaProvider {
   private final Path rootPath;
   private final ProviderDescriptor descriptor;
 
-  FileSystemSeaProvider(FileSystemRoot root) {
+  FileSystemZalavaProvider(FileSystemRoot root) {
     this.root = root;
     try {
       Files.createDirectories(root.path());
@@ -99,15 +99,15 @@ final class FileSystemSeaProvider implements ZalavaProvider {
     this.descriptor =
         new ProviderDescriptor(
             "filesystem-" + root.id(),
-            FileSystemSeaModule.MODULE_ID,
+            FileSystemZalavaModule.MODULE_ID,
             "filesystem-root",
             root.displayName(),
             "Provider-scoped filesystem access rooted at " + rootPath,
-            FileSystemSeaModule.version(),
+            FileSystemZalavaModule.version(),
             new ProviderCapabilities(true, true, false, false, false, false, false, false),
             root.writable()
-                ? List.of("sea_backed", "filesystem", "writable")
-                : List.of("sea_backed", "filesystem", "read_only"),
+                ? List.of("zalava_backed", "filesystem", "writable")
+                : List.of("zalava_backed", "filesystem", "read_only"),
             Map.of("root", rootPath.toString(), "writable", Boolean.toString(root.writable())));
   }
 
