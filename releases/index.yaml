@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "moduleId": "zalava-module-filesystem",
+  "releases": [
+    {
+      "version": "0.1.0-alpha.4",
+      "releaseTag": "v0.1.0-alpha.4",
+      "artifact": {
+        "groupId": "org.zalava.modules",
+        "artifactId": "zalava-module-filesystem",
+        "version": "0.1.0-alpha.4",
+        "sha256": "137a3cbcfced8fce7934dffb3c2532d1de0d0157ebeda31272ff288e62dd3762",
+        "type": "github-release-assets",
+        "repositoryUri": "https://github.com/Zalava/zalava-module-filesystem",
+        "releaseTag": "v0.1.0-alpha.4",
+        "assetName": "zalava-module-filesystem-0.1.0-alpha.4.jar"
+      },
+      "artifactBundle": false,
+      "source": {
+        "repository": "https://github.com/Zalava/zalava-module-filesystem.git",
+        "revision": "4531c01d90e759bc65835f697e8831f03528d2aa",
+        "license": "Apache-2.0"
+      },
+      "compatibility": {
+        "zalavaRuntime": ">=1.0.0 <2.0.0"
+      },
+      "security": {
+        "permissions": [
+          "filesystem-read",
+          "filesystem-write"
+        ]
+      }
+    }
+  ]
+}
